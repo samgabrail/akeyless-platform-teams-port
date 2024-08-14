@@ -36,7 +36,7 @@
   "invocationMethod": {
     "type": "GITHUB",
     "org": "samgabrail",
-    "repo": "port-eks-deploy-guide",
+    "repo": "akeyless-platform-teams-port",
     "workflow": "manage-s3-bucket.yml",
     "workflowInputs": {
       "{{if (.inputs | has(\"ref\")) then \"ref\" else null end}}": "{{.inputs.\"ref\"}}",
@@ -58,7 +58,7 @@
             "invocationMethod": {
               "type": "GITHUB",
               "org": "samgabrail",
-              "repo": "port-eks-deploy-guide",
+              "repo": "akeyless-platform-teams-port",
               "workflow": "manage-s3-bucket.yml",
               "omitUserInputs": false,
               "omitPayload": false,
