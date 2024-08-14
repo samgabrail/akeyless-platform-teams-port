@@ -1,0 +1,73 @@
+{
+  "identifier": "deletes3bucket",
+  "title": "Delete an S3 Bucket",
+  "icon": "S3",
+  "description": "Delete an existing S3 Bucket",
+  "trigger": {
+    "type": "self-service",
+    "operation": "DELETE",
+    "userInputs": {
+      "properties": {
+        "region": {
+          "type": "string",
+          "title": "Region",
+          "blueprint": "region",
+          "default": "us-east-1",
+          "format": "entity"
+        }
+      },
+      "required": [
+        "region"
+      ],
+      "order": [
+        "region"
+      ]
+    },
+    "blueprintIdentifier": "s3"
+  },
+  "invocationMethod": {
+    "type": "GITHUB",
+    "org": "samgabrail",
+    "repo": "port-eks-deploy-guide",
+    "workflow": "manage-s3-bucket.yml",
+    "workflowInputs": {
+      "{{if (.inputs | has(\"ref\")) then \"ref\" else null end}}": "{{.inputs.\"ref\"}}",
+      "bucket_name": "{{.entity.properties.name}}",
+      "action": "destroy",
+      "{{if (.inputs | has(\"region\")) then \"region\" else null end}}": "{{.inputs.\"region\" | if type == \"array\" then map(.identifier) else .identifier end}}",
+      "port_payload": {
+        "action": "{{ .action.identifier[(\"s3_\" | length):] }}",
+        "resourceType": "run",
+        "status": "TRIGGERED",
+        "trigger": "{{ .trigger | {by, origin, at} }}",
+        "context": {
+          "entity": "{{.entity.identifier}}",
+          "blueprint": "{{.action.blueprint}}",
+          "runId": "{{.run.id}}"
+        },
+        "payload": {
+          "entity": "{{ (if .entity == {} then null else .entity end) }}",
+          "action": {
+            "invocationMethod": {
+              "type": "GITHUB",
+              "org": "samgabrail",
+              "repo": "port-eks-deploy-guide",
+              "workflow": "manage-s3-bucket.yml",
+              "omitUserInputs": false,
+              "omitPayload": false,
+              "reportWorkflowStatus": true
+            },
+            "trigger": "{{.trigger.operation}}"
+          },
+          "properties": {
+            "{{if (.inputs | has(\"bucket_name\")) then \"bucket_name\" else null end}}": "{{.inputs.\"bucket_name\"}}",
+            "{{if (.inputs | has(\"region\")) then \"region\" else null end}}": "{{.inputs.\"region\" | if type == \"array\" then map(.identifier) else .identifier end}}"
+          },
+          "censoredProperties": "{{.action.encryptedProperties}}"
+        }
+      }
+    },
+    "reportWorkflowStatus": true
+  },
+  "requiredApproval": false
+}
